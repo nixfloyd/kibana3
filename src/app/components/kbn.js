@@ -469,19 +469,16 @@ function($, _, moment) {
   };
 
   kbn.colorSteps = function(col,steps) {
-
-    var _d = steps > 5 ? 1.6/steps : 0.25, // distance between steps
-      _p = []; // adjustment percentage
-
-    // Create a range of numbers between -0.8 and 0.8
+    function convertHex(hex){
+      var r,g,b; hex = hex.replace('#','');
+      r = parseInt(hex.substring(0,2), 16); g = parseInt(hex.substring(2,4), 16); b = parseInt(hex.substring(4,6), 16);
+      return [r,g,b];
+    };
+    var _vv = Chromath.rgb2hsv(convertHex(col)), _p = [];
     for(var i = 1; i<steps+1; i+=1) {
-      _p.push(i%2 ? ((i-1)*_d*-1)/2 : i*_d/2);
+      _p.push(((_vv[0]+i/steps) % 1)*360);
     }
-
-    // Create the color range
-    return _.map(_p.sort(function(a,b){return a-b;}),function(v) {
-      return v<0 ? Chromath.darken(col,v*-1).toString() : Chromath.lighten(col,v).toString();
-    });
+    return _.map(_p,function(v){return Chromath.hsv({h: v,s: _vv[1], v: _vv[2]}).toString();});
   };
 
   // Find the smallest missing number in an array
